@@ -41,6 +41,9 @@ public class DefaultMapInteractor implements IMapInteractor {
                 @Override
                 public void run() {
                     if (isSpoiled()) {
+                        synchronized (DefaultMapInteractor.this) {
+                            mLoading.remove(tile);
+                        }
                         return;
                     }
                     final Bitmap bitmap = mMapApiMapper.getTile(tile.x, tile.y);
@@ -52,14 +55,13 @@ public class DefaultMapInteractor implements IMapInteractor {
 
                         mTiles.put(tile, bitmap);
                         mLoading.remove(tile);
-
-                        Executor.getInstance().forMainThreadTasks().execute(() -> {
-                            if (listener.get() != null) {
-                                listener.get().onBitmapLoaded(tile, bitmap);
-                            }
-                        });
-
                     }
+
+                    Executor.getInstance().forMainThreadTasks().execute(() -> {
+                        if (listener.get() != null) {
+                            listener.get().onBitmapLoaded(tile, bitmap);
+                        }
+                    });
                 }
             }));
         }
