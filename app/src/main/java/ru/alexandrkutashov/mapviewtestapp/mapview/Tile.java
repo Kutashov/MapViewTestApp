@@ -1,12 +1,14 @@
 package ru.alexandrkutashov.mapviewtestapp.mapview;
 
+import java.io.Serializable;
+
 /**
  * Класс ячейки на карте
  *
  * @author Alexandr Kutashov
  *         on 01.04.2018
  */
-final class Tile {
+final class Tile implements Serializable {
 
     final int x;
     final int y;
