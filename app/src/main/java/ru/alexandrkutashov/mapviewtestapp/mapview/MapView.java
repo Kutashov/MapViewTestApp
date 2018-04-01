@@ -3,6 +3,8 @@ package ru.alexandrkutashov.mapviewtestapp.mapview;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Build;
 import android.support.annotation.Nullable;
@@ -18,13 +20,19 @@ import java.util.Map;
 import static java.lang.Math.abs;
 
 /**
- * Класс для работы с картами
+ * Класс для работы с картами.
+ * Для работы необходимо установить центральную позицию с помощью {@link MapView#setCentralTile(int, int)}.
  *
  * @author Alexandr Kutashov
  *         on 01.04.2018
  */
 
 public class MapView extends SurfaceView implements IOnBitmapLoadedListener {
+
+    /**
+     * Отладочный фича-тоггл
+     */
+    public static final boolean DEBUG = false;
 
     /**
      * Размер ячеек
@@ -51,7 +59,7 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener {
     /**
      * Неизменный установленный центр карты
      */
-    private Tile centralTile;
+    private Tile mCentralTile;
 
     /**
      * Координаты последнего касания
@@ -99,9 +107,10 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener {
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
-        mAnchorX = getWidth() / 2;
-        mAnchorY = getHeight() / 2;
+        mAnchorX = (getWidth() - mTileWidth) / 2;
+        mAnchorY = (getHeight() - mTileHeight) / 2;
         setWillNotDraw(false);
+        setWillNotCacheDrawing(true);
 
         mMapInteractor.setCacheSize(DEFAULT_CACHED_TILE_FACTOR *
                 (getWidth() / DEFAULT_TILE_WIDTH) * getHeight() / DEFAULT_TILE_HEIGHT);
@@ -109,7 +118,7 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if (centralTile == null) {
+        if (mCentralTile == null) {
             return;
         }
 
@@ -133,7 +142,17 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener {
             case MotionEvent.ACTION_MOVE:
             case MotionEvent.ACTION_UP:
                 float dx = event.getX() - mLastTouchX;
+                if (assertDiffOutWidthBounds(dx)) {
+                    invalidate();
+                    return false;
+                }
+
                 float dy = event.getY() - mLastTouchY;
+                if (assertDiffOutHeightBounds(dy)) {
+                    invalidate();
+                    return false;
+                }
+
                 mAnchorX = mAnchorX + dx;
                 mAnchorY = mAnchorY + dy;
 
@@ -145,8 +164,18 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener {
         return true;
     }
 
+    private boolean assertDiffOutWidthBounds(float dx) {
+        return abs(mAnchorX + dx) / mTileWidth >= DEFAULT_MAP_WIDTH / 2
+                || abs((getWidth() - mAnchorX - dx)) / mTileWidth >= DEFAULT_MAP_WIDTH / 2;
+    }
+
+    private boolean assertDiffOutHeightBounds(float dy) {
+        return abs(mAnchorY + dy) / mTileHeight >= DEFAULT_MAP_HEIGHT / 2 ||
+                abs((getHeight() - mAnchorY - dy)) / mTileHeight >= DEFAULT_MAP_HEIGHT / 2;
+    }
+
     public void setCentralTile(int x, int y) {
-        centralTile = new Tile(x, y);
+        mCentralTile = new Tile(x, y);
 
         invalidate();
     }
@@ -180,21 +209,45 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener {
     }
 
     private void drawTile(Canvas canvas, Tile tile, Bitmap bitmap) {
-        float left = mAnchorX - (centralTile.x - tile.x) * mTileWidth;
-        float top = mAnchorY - (centralTile.y - tile.y) * mTileHeight;
+        float left = mAnchorX - (mCentralTile.x - tile.x) * mTileWidth;
+        float top = mAnchorY - (mCentralTile.y - tile.y) * mTileHeight;
 
         if (canvas == null) {
             Rect rect = new Rect((int) left, (int) top, (int) left + bitmap.getWidth(),
                     (int) top + bitmap.getHeight());
             Canvas temp = getHolder().lockCanvas(rect);
             if (temp != null) {
+
                 temp.drawBitmap(bitmap, left, top, null);
+                if (DEBUG) {
+                    drawGrid(temp, tile, bitmap, (int) left, (int) top);
+                }
+
                 getHolder().unlockCanvasAndPost(temp);
             }
 
         } else {
             canvas.drawBitmap(bitmap, left, top, null);
+            if (DEBUG) {
+                drawGrid(canvas, tile, bitmap, (int) left, (int) top);
+            }
+
         }
+    }
+
+    private void drawGrid(Canvas canvas, Tile tile, Bitmap bitmap, int left, int top) {
+        Paint paint = new Paint();
+        if (tile.equals(mCentralTile)) {
+            paint.setColor(Color.BLUE);
+            paint.setStrokeWidth(20);
+        } else {
+            paint.setColor(Color.RED);
+            paint.setStrokeWidth(10);
+        }
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setAntiAlias(true);
+        canvas.drawRect(new Rect(left, top,
+                left + bitmap.getWidth(), top + bitmap.getHeight()), paint);
     }
 
     private Bitmap getCachedBitmap(Tile tile) {
@@ -221,8 +274,8 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener {
             yTilesDiff = DEFAULT_MAP_HEIGHT / 2;
         }
 
-        return new Tile(centralTile.x - xTilesDiff,
-                centralTile.y - yTilesDiff);
+        return new Tile(mCentralTile.x - xTilesDiff,
+                mCentralTile.y - yTilesDiff);
     }
 
     private Tile getBottomRightVisibleTile() {
@@ -236,7 +289,7 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener {
             yTilesDiff = DEFAULT_MAP_HEIGHT / 2;
         }
 
-        return new Tile(centralTile.x + xTilesDiff,
-                centralTile.y + yTilesDiff);
+        return new Tile(mCentralTile.x + xTilesDiff,
+                mCentralTile.y + yTilesDiff);
     }
 }
