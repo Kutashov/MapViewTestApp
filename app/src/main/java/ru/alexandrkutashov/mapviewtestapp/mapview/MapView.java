@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.util.ArrayMap;
@@ -126,7 +127,7 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener {
     }
 
     @Override
-    public void onBitmapLoaded(Tile tile, Bitmap bitmap) {
+    public void onBitmapLoaded(@NonNull Tile tile, @NonNull Bitmap bitmap) {
         mTiles.put(tile, new WeakReference<>(bitmap));
 
         drawTile(null, tile, bitmap);
@@ -187,7 +188,7 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener {
         mMapInteractor = new DefaultMapInteractor(new DefaultMapApiMapper());
     }
 
-    private void drawTiles(Canvas canvas) {
+    private void drawTiles(@NonNull Canvas canvas) {
         Tile topLeft = getTopLeftVisibleTile();
         Tile bottomRight = getBottomRightVisibleTile();
 
@@ -208,7 +209,7 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener {
         }
     }
 
-    private void drawTile(Canvas canvas, Tile tile, Bitmap bitmap) {
+    private void drawTile(@Nullable Canvas canvas, @NonNull Tile tile, @NonNull Bitmap bitmap) {
         float left = mAnchorX - (mCentralTile.x - tile.x) * mTileWidth;
         float top = mAnchorY - (mCentralTile.y - tile.y) * mTileHeight;
 
@@ -235,7 +236,7 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener {
         }
     }
 
-    private void drawGrid(Canvas canvas, Tile tile, Bitmap bitmap, int left, int top) {
+    private void drawGrid(@NonNull Canvas canvas, @NonNull Tile tile, @NonNull Bitmap bitmap, int left, int top) {
         Paint paint = new Paint();
         if (tile.equals(mCentralTile)) {
             paint.setColor(Color.BLUE);
@@ -250,7 +251,8 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener {
                 left + bitmap.getWidth(), top + bitmap.getHeight()), paint);
     }
 
-    private Bitmap getCachedBitmap(Tile tile) {
+    @Nullable
+    private Bitmap getCachedBitmap(@NonNull Tile tile) {
         WeakReference<Bitmap> reference = mTiles.get(tile);
         if (reference == null) {
             return null;
@@ -263,6 +265,7 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener {
         }
     }
 
+    @NonNull
     private Tile getTopLeftVisibleTile() {
         int xTilesDiff = (int) (mAnchorX / mTileWidth + DEFAULT_CACHED_HIDDEN_TILES);
         if (abs(xTilesDiff) > DEFAULT_MAP_WIDTH / 2) {
@@ -278,6 +281,7 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener {
                 mCentralTile.y - yTilesDiff);
     }
 
+    @NonNull
     private Tile getBottomRightVisibleTile() {
         int xTilesDiff = (int) ((getWidth() - mAnchorX) / mTileWidth + DEFAULT_CACHED_HIDDEN_TILES);
         if (abs(xTilesDiff) > DEFAULT_MAP_WIDTH / 2) {

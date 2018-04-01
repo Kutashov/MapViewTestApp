@@ -1,6 +1,7 @@
 package ru.alexandrkutashov.mapviewtestapp.mapview;
 
 import android.graphics.Bitmap;
+import android.support.annotation.NonNull;
 
 /**
  * Слушатель статуса загрузки картинки
@@ -16,5 +17,5 @@ interface IOnBitmapLoadedListener {
      * @param tile тайл загружаемой позиции
      * @param bitmap ресурс картинки
      */
-    void onBitmapLoaded(Tile tile, Bitmap bitmap);
+    void onBitmapLoaded(@NonNull Tile tile, @NonNull Bitmap bitmap);
 }

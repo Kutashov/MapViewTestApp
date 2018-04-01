@@ -2,6 +2,7 @@ package ru.alexandrkutashov.mapviewtestapp.mapview;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.annotation.NonNull;
 
 import java.io.IOException;
 import java.net.URL;
@@ -33,7 +34,7 @@ public class DefaultMapApiMapper implements IMapApiMapper {
 
         private static final String DELIM = "/";
 
-        public static String format(String baseUrl, int x, int y, String extension) {
+        public static String format(@NonNull String baseUrl, int x, int y, @NonNull String extension) {
             return baseUrl + x + DELIM + y + extension;
         }
     }

@@ -1,6 +1,7 @@
 package ru.alexandrkutashov.mapviewtestapp.mapview;
 
 import android.graphics.Bitmap;
+import android.support.annotation.NonNull;
 import android.util.ArrayMap;
 
 import java.lang.ref.WeakReference;
@@ -24,12 +25,12 @@ public class DefaultMapInteractor implements IMapInteractor {
 
     private int mCacheSize = DEFAULT_CACHE_SIZE;
 
-    public DefaultMapInteractor(IMapApiMapper mapApiMapper) {
+    public DefaultMapInteractor(@NonNull IMapApiMapper mapApiMapper) {
         mMapApiMapper = mapApiMapper;
     }
 
     @Override
-    public void getTile(Tile tile, final WeakReference<IOnBitmapLoadedListener> listener) {
+    public void getTile(@NonNull Tile tile, @NonNull final WeakReference<IOnBitmapLoadedListener> listener) {
         Bitmap result = mTiles.get(tile);
         if (result != null && listener.get() != null) {
             listener.get().onBitmapLoaded(tile, result);

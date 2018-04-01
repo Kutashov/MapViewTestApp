@@ -42,6 +42,7 @@ public class Executor {
 
     private java.util.concurrent.Executor mMainThreadExecutor = new MainThreadExecutor();
 
+    @NonNull
     public static Executor getInstance() {
         if (sInstance == null) {
             synchronized (Executor.class) {
