@@ -41,12 +41,12 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener {
     /**
      * Количество кешируемых элементов, находящихся вне границ видимости
      */
-    private static final int DEFAULT_CACHED_HIDDEN_TILES = 2;
+    private static final int DEFAULT_CACHED_HIDDEN_TILES = 1;
 
     /**
      * Множитель для количества кешируемых ячеек. Выбран опытным путем, может быть изменен
      */
-    private static final int DEFAULT_CACHED_TILE_FACTOR = 4;
+    private static final int DEFAULT_CACHED_TILE_FACTOR = 3;
 
     /**
      * Неизменный установленный центр карты
@@ -187,8 +187,11 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener {
             Rect rect = new Rect((int) left, (int) top, (int) left + bitmap.getWidth(),
                     (int) top + bitmap.getHeight());
             Canvas temp = getHolder().lockCanvas(rect);
-            temp.drawBitmap(bitmap, left, top, null);
-            getHolder().unlockCanvasAndPost(temp);
+            if (temp != null) {
+                temp.drawBitmap(bitmap, left, top, null);
+                getHolder().unlockCanvasAndPost(temp);
+            }
+
         } else {
             canvas.drawBitmap(bitmap, left, top, null);
         }

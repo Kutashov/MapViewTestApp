@@ -4,9 +4,8 @@ import android.graphics.Bitmap;
 import android.util.ArrayMap;
 
 import java.lang.ref.WeakReference;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.Future;
 
 /**
  * Дефолтный интерактор-помощник для вью карты
@@ -21,7 +20,7 @@ public class DefaultMapInteractor implements IMapInteractor {
 
     private final Map<Tile, Bitmap> mTiles = new ArrayMap<>();
     private final IMapApiMapper mMapApiMapper;
-    private final Set<Tile> mLoading = new HashSet<>();
+    private final Map<Tile, Future> mLoading = new ArrayMap<>();
 
     private int mCacheSize = DEFAULT_CACHE_SIZE;
 
@@ -37,27 +36,32 @@ public class DefaultMapInteractor implements IMapInteractor {
             return;
         }
 
-        if (!mLoading.contains(tile)) {
-            mLoading.add(tile);
-            Executor.getInstance().forBackgroundTasks().submit(() -> {
-                final Bitmap bitmap = mMapApiMapper.getTile(tile.x, tile.y);
-
-                synchronized (DefaultMapInteractor.this) {
-                    if (mTiles.size() > mCacheSize) {
-                        mTiles.clear();
+        if (mLoading.get(tile) == null) {
+            mLoading.put(tile, Executor.getInstance().forBackgroundTasks().submit(new TileDownloadRunnable() {
+                @Override
+                public void run() {
+                    if (isSpoiled()) {
+                        return;
                     }
+                    final Bitmap bitmap = mMapApiMapper.getTile(tile.x, tile.y);
 
-                    mTiles.put(tile, bitmap);
-                    mLoading.remove(tile);
+                    synchronized (DefaultMapInteractor.this) {
+                        if (mTiles.size() > mCacheSize) {
+                            mTiles.clear();
+                        }
+
+                        mTiles.put(tile, bitmap);
+                        mLoading.remove(tile);
+
+                        Executor.getInstance().forMainThreadTasks().execute(() -> {
+                            if (listener.get() != null) {
+                                listener.get().onBitmapLoaded(tile, bitmap);
+                            }
+                        });
+
+                    }
                 }
-
-                Executor.getInstance().forMainThreadTasks().execute(() -> {
-                    if (listener.get() != null) {
-                        listener.get().onBitmapLoaded(tile, bitmap);
-                    }
-                });
-
-            });
+            }));
         }
 
     }
@@ -65,5 +69,12 @@ public class DefaultMapInteractor implements IMapInteractor {
     @Override
     public void setCacheSize(int cacheSize) {
         mCacheSize = cacheSize;
+    }
+
+    @Override
+    public void onDestroy() {
+        for (Future future : mLoading.values()) {
+            future.cancel(true);
+        }
     }
 }

@@ -6,7 +6,6 @@ import android.support.annotation.NonNull;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -27,7 +26,7 @@ public class Executor {
     private static final int KEEP_ALIVE_TIME = 1;
     private static final TimeUnit KEEP_ALIVE_TIME_UNIT = TimeUnit.SECONDS;
 
-    private BlockingQueue<Runnable> mTaskQueue = new LinkedBlockingQueue<>();
+    private BlockingQueue<Runnable> mTaskQueue = new LinkedBlockingStack<>();
 
     /**
      * an instance of DefaultExecutorSupplier

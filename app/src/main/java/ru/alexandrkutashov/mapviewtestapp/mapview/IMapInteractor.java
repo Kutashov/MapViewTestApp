@@ -23,4 +23,9 @@ public interface IMapInteractor {
      * @param cacheSize размер кеша
      */
     void setCacheSize(int cacheSize);
+
+    /**
+     * Обработчик уничтожения объекта
+     */
+    void onDestroy();
 }
