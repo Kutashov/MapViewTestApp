@@ -1,5 +1,7 @@
 package ru.alexandrkutashov.mapviewtestapp.mapview;
 
+import java.lang.ref.WeakReference;
+
 /**
  * Интерактор-помощник для работы с картами
  *
@@ -14,7 +16,7 @@ public interface IMapInteractor {
      * @param tile тайл позиции
      * @param listener слушатель обработчика ответа
      */
-    void getTile(Tile tile, IOnBitmapLoadedListener listener);
+    void getTile(Tile tile, WeakReference<IOnBitmapLoadedListener> listener);
 
     /**
      * Устанавливает размер кеша элементов ответов

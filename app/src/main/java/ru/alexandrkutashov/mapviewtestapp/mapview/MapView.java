@@ -170,7 +170,7 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener {
                 tile = new Tile(i, j);
                 bitmap = getCachedBitmap(tile);
                 if (bitmap == null) {
-                    mMapInteractor.getTile(tile, this);
+                    mMapInteractor.getTile(tile, new WeakReference<>(this));
                 } else {
                     drawTile(canvas, tile, bitmap);
                 }

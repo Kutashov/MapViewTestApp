@@ -2,8 +2,8 @@ package ru.alexandrkutashov.mapviewtestapp.mapview;
 
 import android.graphics.Bitmap;
 import android.util.ArrayMap;
-import android.util.Log;
 
+import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -30,10 +30,10 @@ public class DefaultMapInteractor implements IMapInteractor {
     }
 
     @Override
-    public void getTile(Tile tile, final IOnBitmapLoadedListener listener) {
+    public void getTile(Tile tile, final WeakReference<IOnBitmapLoadedListener> listener) {
         Bitmap result = mTiles.get(tile);
-        if (result != null) {
-            listener.onBitmapLoaded(tile, result);
+        if (result != null && listener.get() != null) {
+            listener.get().onBitmapLoaded(tile, result);
             return;
         }
 
@@ -48,12 +48,14 @@ public class DefaultMapInteractor implements IMapInteractor {
                     }
 
                     mTiles.put(tile, bitmap);
-                    Log.d("map interactor", tile.x + ":" + tile.y);
                     mLoading.remove(tile);
                 }
 
-                Executor.getInstance().forMainThreadTasks().execute(() ->
-                        listener.onBitmapLoaded(tile, bitmap));
+                Executor.getInstance().forMainThreadTasks().execute(() -> {
+                    if (listener.get() != null) {
+                        listener.get().onBitmapLoaded(tile, bitmap);
+                    }
+                });
 
             });
         }
