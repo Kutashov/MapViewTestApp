@@ -16,7 +16,7 @@ import java.net.URL;
 public class DefaultMapApiMapper implements IMapApiMapper {
 
     private static final String EXTENSION = ".png";
-    private static final String BASE_URL = "http://b.tile.opencyclemap.org/cycle/16/%d/%d.png";
+    private static final String BASE_URL = "http://b.tile.opencyclemap.org/cycle/16/";
 
     @Override
     public Bitmap getTile(int x, int y) {

@@ -1,7 +1,5 @@
 package ru.alexandrkutashov.mapviewtestapp.mapview;
 
-import android.graphics.Bitmap;
-
 /**
  * Интерактор-помощник для работы с картами
  *
@@ -11,5 +9,16 @@ import android.graphics.Bitmap;
 
 public interface IMapInteractor {
 
-    Bitmap getTile(int x, int y);
+    /**
+     * Получает тайл по необходимой позиции
+     * @param tile тайл позиции
+     * @param listener слушатель обработчика ответа
+     */
+    void getTile(Tile tile, IOnBitmapLoadedListener listener);
+
+    /**
+     * Устанавливает размер кеша элементов ответов
+     * @param cacheSize размер кеша
+     */
+    void setCacheSize(int cacheSize);
 }
