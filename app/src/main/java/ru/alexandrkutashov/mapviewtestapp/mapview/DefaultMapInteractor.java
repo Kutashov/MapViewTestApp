@@ -50,6 +50,12 @@ public class DefaultMapInteractor implements IMapInteractor {
                     final Bitmap bitmap = mMapApiMapper.getTile(tile.x, tile.y);
 
                     synchronized (DefaultMapInteractor.this) {
+                        if (bitmap == null) {
+                            mLoading.remove(tile);
+                            getTile(tile, listener);
+                            return;
+                        }
+
                         if (mTiles.size() > mCacheSize) {
                             mTiles.clear();
                         }
