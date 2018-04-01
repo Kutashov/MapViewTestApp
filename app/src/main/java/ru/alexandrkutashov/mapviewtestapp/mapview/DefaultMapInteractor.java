@@ -56,13 +56,12 @@ public class DefaultMapInteractor implements IMapInteractor {
 
                         mTiles.put(tile, bitmap);
                         mLoading.remove(tile);
-                    }
 
-                    Executor.getInstance().forMainThreadTasks().execute(() -> {
                         if (listener.get() != null) {
                             listener.get().onBitmapLoaded(tile, bitmap);
                         }
-                    });
+                    }
+
                 }
             }));
         }

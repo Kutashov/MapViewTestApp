@@ -1,7 +1,5 @@
 package ru.alexandrkutashov.mapviewtestapp.mapview;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 
 import java.util.concurrent.BlockingQueue;
@@ -40,8 +38,6 @@ public class Executor {
             mTaskQueue,
             new BackgroundThreadFactory());
 
-    private java.util.concurrent.Executor mMainThreadExecutor = new MainThreadExecutor();
-
     @NonNull
     public static Executor getInstance() {
         if (sInstance == null) {
@@ -56,10 +52,6 @@ public class Executor {
         return mExecutorService;
     }
 
-    public java.util.concurrent.Executor forMainThreadTasks() {
-        return mMainThreadExecutor;
-    }
-
     private static class BackgroundThreadFactory implements ThreadFactory {
 
         @Override
@@ -67,16 +59,6 @@ public class Executor {
             Thread thread = new Thread(runnable);
             thread.setPriority(THREAD_PRIORITY_BACKGROUND);
             return thread;
-        }
-    }
-
-    private static class MainThreadExecutor implements java.util.concurrent.Executor {
-
-        private final Handler handler = new Handler(Looper.getMainLooper());
-
-        @Override
-        public void execute(@NonNull Runnable runnable) {
-            handler.post(runnable);
         }
     }
 }
