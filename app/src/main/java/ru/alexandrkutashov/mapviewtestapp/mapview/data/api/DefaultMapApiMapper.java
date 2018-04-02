@@ -34,9 +34,13 @@ public class DefaultMapApiMapper implements IMapApiMapper {
         return null;
     }
 
-    public static class BitmapUrlFormatter {
+    public static final class BitmapUrlFormatter {
 
         private static final String DELIM = "/";
+
+        private BitmapUrlFormatter() {
+            throw new UnsupportedOperationException();
+        }
 
         public static String format(@NonNull String baseUrl, int x, int y, @NonNull String extension) {
             return baseUrl + x + DELIM + y + extension;

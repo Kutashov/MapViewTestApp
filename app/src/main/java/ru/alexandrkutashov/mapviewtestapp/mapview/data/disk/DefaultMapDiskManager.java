@@ -118,9 +118,13 @@ public class DefaultMapDiskManager implements IMapDiskManager {
         }
     }
 
-    public static class PathFormatter {
+    public static final class PathFormatter {
 
         private static final String DELIM = "-";
+
+        private PathFormatter() {
+            throw new UnsupportedOperationException();
+        }
 
         public static String format(@NonNull String baseUrl, int x, int y, @NonNull String extension) {
             return baseUrl + DELIM + x + DELIM + y + extension;
