@@ -17,13 +17,8 @@ import java.util.concurrent.Future;
 
 public class DefaultMapInteractor implements IMapInteractor {
 
-    private static final int DEFAULT_CACHE_SIZE = 500;
-
-    private final Map<Tile, Bitmap> mTiles = new ArrayMap<>();
     private final IMapRepository mMapRepository;
     private final Map<Tile, Future> mLoading = new ArrayMap<>();
-
-    private int mCacheSize = DEFAULT_CACHE_SIZE;
 
     public DefaultMapInteractor(@NonNull IMapRepository mapRepository) {
         mMapRepository = mapRepository;
@@ -31,11 +26,6 @@ public class DefaultMapInteractor implements IMapInteractor {
 
     @Override
     public void getTile(@NonNull Tile tile, @NonNull final WeakReference<IOnBitmapLoadedListener> listener) {
-        Bitmap result = mTiles.get(tile);
-        if (result != null && listener.get() != null) {
-            listener.get().onBitmapLoaded(tile, result);
-            return;
-        }
 
         if (mLoading.get(tile) == null) {
             mLoading.put(tile, Executor.getInstance().forBackgroundTasks().submit(new TileDownloadRunnable() {
@@ -56,27 +46,20 @@ public class DefaultMapInteractor implements IMapInteractor {
                             return;
                         }
 
-                        if (mTiles.size() > mCacheSize) {
-                            mTiles.clear();
-                        }
-
-                        mTiles.put(tile, bitmap);
                         mLoading.remove(tile);
 
                         if (listener.get() != null) {
                             listener.get().onBitmapLoaded(tile, bitmap);
                         }
                     }
-
                 }
             }));
         }
-
     }
 
     @Override
     public void setCacheSize(int cacheSize) {
-        mCacheSize = cacheSize;
+        mMapRepository.setCacheSize(cacheSize);
     }
 
     @Override

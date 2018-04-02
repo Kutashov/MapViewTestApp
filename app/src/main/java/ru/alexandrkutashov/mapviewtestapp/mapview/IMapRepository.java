@@ -20,4 +20,10 @@ public interface IMapRepository {
      */
     @Nullable
     Bitmap getTile(@NonNull Tile tile);
+
+    /**
+     * Устанавливает размер кеша в памяти
+     * @param cacheSize размер кеша в шутках
+     */
+    void setCacheSize(int cacheSize);
 }

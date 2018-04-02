@@ -13,9 +13,18 @@ import android.support.annotation.Nullable;
 
 public interface IMapDiskManager {
 
-    boolean containsInCache(@NonNull Tile tile);
+    /**
+     * Достает тайл с диска, если тот существует
+     * @param tile тайл для поиска
+     * @return
+     */
+    @Nullable
+    Bitmap getFromDisk(@NonNull Tile tile);
 
-    @Nullable Bitmap getFromDisk(@NonNull Tile tile);
-
+    /**
+     * Сохраняет тайл на диск
+     * @param tile тайл с индексами
+     * @param bitmap картинка тайла
+     */
     void saveToDisk(@NonNull Tile tile, @NonNull Bitmap bitmap);
 }

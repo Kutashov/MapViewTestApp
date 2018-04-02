@@ -42,15 +42,6 @@ public class DefaultMapDiskManager implements IMapDiskManager {
     }
 
     @Override
-    public boolean containsInCache(@NonNull Tile tile) {
-        ContextWrapper cw = new ContextWrapper(mContext);
-        File directory = cw.getDir(TILE_DIRECTORY_NAME, Context.MODE_PRIVATE);
-        String fileName = PathFormatter.format(BASE_NAME, tile.x, tile.y, EXTENSTION);
-        File filePath = new File(directory, fileName);
-        return filePath.exists();
-    }
-
-    @Override
     public void saveToDisk(@NonNull Tile tile, @NonNull Bitmap bitmap) {
         if (mFileCount > MAX_FILES_ON_DISK) {
             tryToDeleteOldFiles();
@@ -65,8 +56,10 @@ public class DefaultMapDiskManager implements IMapDiskManager {
         try {
             ContextWrapper cw = new ContextWrapper(mContext);
             File directory = cw.getDir(TILE_DIRECTORY_NAME, Context.MODE_PRIVATE);
-            File f = new File(directory, PathFormatter.format(BASE_NAME, tile.x, tile.y, EXTENSTION));
-            return BitmapFactory.decodeStream(new FileInputStream(f));
+            File file = new File(directory, PathFormatter.format(BASE_NAME, tile.x, tile.y, EXTENSTION));
+            if (file.exists()) {
+                return BitmapFactory.decodeStream(new FileInputStream(file));
+            }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

@@ -5,6 +5,7 @@ import android.app.Application;
 import ru.alexandrkutashov.mapviewtestapp.mapview.DefaultMapApiMapper;
 import ru.alexandrkutashov.mapviewtestapp.mapview.DefaultMapDiskManager;
 import ru.alexandrkutashov.mapviewtestapp.mapview.DefaultMapInteractor;
+import ru.alexandrkutashov.mapviewtestapp.mapview.DefaultMapMemoryManager;
 import ru.alexandrkutashov.mapviewtestapp.mapview.DefaultMapRepository;
 import ru.alexandrkutashov.mapviewtestapp.mapview.IMapInteractor;
 
@@ -33,6 +34,7 @@ public class MapApp extends Application {
     public IMapInteractor getMapInteractor() {
         if (mMapInteractor == null) {
             mMapInteractor = new DefaultMapInteractor(new DefaultMapRepository(
+                    new DefaultMapMemoryManager(),
                     new DefaultMapApiMapper(),
                     new DefaultMapDiskManager(getApplicationContext())));
         }
