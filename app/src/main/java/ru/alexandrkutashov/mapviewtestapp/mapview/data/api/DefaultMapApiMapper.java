@@ -1,4 +1,4 @@
-package ru.alexandrkutashov.mapviewtestapp.mapview;
+package ru.alexandrkutashov.mapviewtestapp.mapview.data.api;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -7,6 +7,8 @@ import android.support.annotation.Nullable;
 
 import java.io.IOException;
 import java.net.URL;
+
+import ru.alexandrkutashov.mapviewtestapp.mapview.data.model.Tile;
 
 /**
  * Дефолтная реализация загрузчика тайлов
@@ -22,7 +24,7 @@ public class DefaultMapApiMapper implements IMapApiMapper {
 
     @Override
     @Nullable
-    public Bitmap getTile(Tile tile) {
+    public Bitmap getTile(@NonNull Tile tile) {
         try {
             URL url = new URL(BitmapUrlFormatter.format(BASE_URL, tile.x, tile.y, EXTENSION));
             return BitmapFactory.decodeStream(url.openConnection().getInputStream());

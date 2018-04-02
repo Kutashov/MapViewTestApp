@@ -2,12 +2,12 @@ package ru.alexandrkutashov.mapviewtestapp;
 
 import org.junit.Test;
 
-import ru.alexandrkutashov.mapviewtestapp.mapview.DefaultMapDiskManager;
+import ru.alexandrkutashov.mapviewtestapp.mapview.data.disk.DefaultMapDiskManager;
 
 import static junit.framework.Assert.assertEquals;
 
 /**
- * Тест на {@link ru.alexandrkutashov.mapviewtestapp.mapview.DefaultMapDiskManager.PathFormatter}
+ * Тест на {@link DefaultMapDiskManager.PathFormatter}
  *
  * @author Alexandr Kutashov
  *         on 02.04.2018

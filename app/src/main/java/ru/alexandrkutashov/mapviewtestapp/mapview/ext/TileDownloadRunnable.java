@@ -1,4 +1,4 @@
-package ru.alexandrkutashov.mapviewtestapp.mapview;
+package ru.alexandrkutashov.mapviewtestapp.mapview.ext;
 
 /**
  * Помощник для запросов по загрузке тайлов
@@ -16,11 +16,11 @@ public abstract class TileDownloadRunnable implements Runnable {
 
     private final long mStartTime;
 
-    public TileDownloadRunnable() {
+    protected TileDownloadRunnable() {
         mStartTime = System.currentTimeMillis();
     }
 
-    public boolean isSpoiled() {
+    protected boolean isSpoiled() {
         return System.currentTimeMillis() > mStartTime + SPOILED_TIME_MS;
     }
 }

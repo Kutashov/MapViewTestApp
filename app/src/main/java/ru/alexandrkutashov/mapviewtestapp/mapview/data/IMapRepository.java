@@ -1,8 +1,10 @@
-package ru.alexandrkutashov.mapviewtestapp.mapview;
+package ru.alexandrkutashov.mapviewtestapp.mapview.data;
 
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+
+import ru.alexandrkutashov.mapviewtestapp.mapview.data.model.Tile;
 
 /**
  * Класс, отвечающий за получение тайлов для карты различными способами:

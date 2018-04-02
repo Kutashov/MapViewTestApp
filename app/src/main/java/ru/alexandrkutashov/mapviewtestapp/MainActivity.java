@@ -3,7 +3,7 @@ package ru.alexandrkutashov.mapviewtestapp;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-import ru.alexandrkutashov.mapviewtestapp.mapview.MapView;
+import ru.alexandrkutashov.mapviewtestapp.mapview.ui.MapView;
 
 public class MainActivity extends AppCompatActivity {
 

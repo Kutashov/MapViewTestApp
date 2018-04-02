@@ -2,7 +2,7 @@ package ru.alexandrkutashov.mapviewtestapp;
 
 import org.junit.Test;
 
-import ru.alexandrkutashov.mapviewtestapp.mapview.DefaultMapApiMapper;
+import ru.alexandrkutashov.mapviewtestapp.mapview.data.api.DefaultMapApiMapper;
 
 import static junit.framework.Assert.assertEquals;
 

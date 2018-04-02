@@ -1,4 +1,6 @@
-package ru.alexandrkutashov.mapviewtestapp.mapview;
+package ru.alexandrkutashov.mapviewtestapp.mapview.ext;
+
+import android.support.annotation.NonNull;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -14,7 +16,7 @@ import java.util.concurrent.TimeUnit;
  */
 
 public class LinkedBlockingStack<T> implements BlockingQueue<T> {
-    private final LinkedBlockingDeque<T> stack = new LinkedBlockingDeque<T>();
+    private final LinkedBlockingDeque<T> stack = new LinkedBlockingDeque<>();
 
     @Override
     public T remove() {
@@ -46,38 +48,41 @@ public class LinkedBlockingStack<T> implements BlockingQueue<T> {
         return stack.isEmpty();
     }
 
+    @NonNull
     @Override
     public Iterator<T> iterator() {
         return stack.iterator();
     }
 
+    @NonNull
     @Override
     public Object[] toArray() {
         return stack.toArray();
     }
 
+    @NonNull
     @Override
-    public <S> S[] toArray(final S[] a) {
+    public <S> S[] toArray(@NonNull final S[] a) {
         return stack.toArray(a);
     }
 
     @Override
-    public boolean containsAll(final Collection<?> c) {
+    public boolean containsAll(@NonNull final Collection<?> c) {
         return stack.containsAll(c);
     }
 
     @Override
-    public boolean addAll(final Collection<? extends T> c) {
+    public boolean addAll(@NonNull final Collection<? extends T> c) {
         return stack.addAll(c);
     }
 
     @Override
-    public boolean removeAll(final Collection<?> c) {
+    public boolean removeAll(@NonNull final Collection<?> c) {
         return stack.removeAll(c);
     }
 
     @Override
-    public boolean retainAll(final Collection<?> c) {
+    public boolean retainAll(@NonNull final Collection<?> c) {
         return stack.removeAll(c);
     }
 
@@ -92,7 +97,7 @@ public class LinkedBlockingStack<T> implements BlockingQueue<T> {
     }
 
     @Override
-    public boolean offer(final T e) {
+    public boolean offer(@NonNull final T e) {
         return stack.offerFirst(e); //Used offerFirst instead of offer.
     }
 
@@ -102,7 +107,7 @@ public class LinkedBlockingStack<T> implements BlockingQueue<T> {
     }
 
     @Override
-    public boolean offer(final T e, final long timeout, final TimeUnit unit)
+    public boolean offer(final T e, final long timeout, @NonNull final TimeUnit unit)
             throws InterruptedException {
         return stack.offerLast(e, timeout, unit);
     }
@@ -113,7 +118,7 @@ public class LinkedBlockingStack<T> implements BlockingQueue<T> {
     }
 
     @Override
-    public T poll(final long timeout, final TimeUnit unit)
+    public T poll(final long timeout, @NonNull final TimeUnit unit)
             throws InterruptedException {
         return stack.poll();
     }
@@ -134,12 +139,12 @@ public class LinkedBlockingStack<T> implements BlockingQueue<T> {
     }
 
     @Override
-    public int drainTo(final Collection<? super T> c) {
+    public int drainTo(@NonNull final Collection<? super T> c) {
         return stack.drainTo(c);
     }
 
     @Override
-    public int drainTo(final Collection<? super T> c, final int maxElements) {
+    public int drainTo(@NonNull final Collection<? super T> c, final int maxElements) {
         return stack.drainTo(c, maxElements);
     }
 }

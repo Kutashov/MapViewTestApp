@@ -1,4 +1,4 @@
-package ru.alexandrkutashov.mapviewtestapp.mapview;
+package ru.alexandrkutashov.mapviewtestapp.mapview.ext;
 
 import android.support.annotation.NonNull;
 

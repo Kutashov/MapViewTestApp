@@ -2,12 +2,12 @@ package ru.alexandrkutashov.mapviewtestapp;
 
 import android.app.Application;
 
-import ru.alexandrkutashov.mapviewtestapp.mapview.DefaultMapApiMapper;
-import ru.alexandrkutashov.mapviewtestapp.mapview.DefaultMapDiskManager;
-import ru.alexandrkutashov.mapviewtestapp.mapview.DefaultMapInteractor;
-import ru.alexandrkutashov.mapviewtestapp.mapview.DefaultMapMemoryManager;
-import ru.alexandrkutashov.mapviewtestapp.mapview.DefaultMapRepository;
-import ru.alexandrkutashov.mapviewtestapp.mapview.IMapInteractor;
+import ru.alexandrkutashov.mapviewtestapp.mapview.data.api.DefaultMapApiMapper;
+import ru.alexandrkutashov.mapviewtestapp.mapview.data.disk.DefaultMapDiskManager;
+import ru.alexandrkutashov.mapviewtestapp.mapview.domain.DefaultMapInteractor;
+import ru.alexandrkutashov.mapviewtestapp.mapview.data.memory.DefaultMapMemoryManager;
+import ru.alexandrkutashov.mapviewtestapp.mapview.data.DefaultMapRepository;
+import ru.alexandrkutashov.mapviewtestapp.mapview.domain.IMapInteractor;
 
 /**
  * @author Alexandr Kutashov

@@ -1,4 +1,4 @@
-package ru.alexandrkutashov.mapviewtestapp.mapview;
+package ru.alexandrkutashov.mapviewtestapp.mapview.data.model;
 
 import java.io.Serializable;
 
@@ -8,12 +8,12 @@ import java.io.Serializable;
  * @author Alexandr Kutashov
  *         on 01.04.2018
  */
-final class Tile implements Serializable {
+public final class Tile implements Serializable {
 
-    final int x;
-    final int y;
+    public final int x;
+    public final int y;
 
-    Tile(int x, int y) {
+    public Tile(int x, int y) {
         this.x = x;
         this.y = y;
     }

@@ -1,8 +1,11 @@
-package ru.alexandrkutashov.mapviewtestapp.mapview;
+package ru.alexandrkutashov.mapviewtestapp.mapview.domain;
 
 import android.support.annotation.NonNull;
 
 import java.lang.ref.WeakReference;
+
+import ru.alexandrkutashov.mapviewtestapp.mapview.data.model.Tile;
+import ru.alexandrkutashov.mapviewtestapp.mapview.ui.IOnBitmapLoadedListener;
 
 /**
  * Интерактор-помощник для работы с картами

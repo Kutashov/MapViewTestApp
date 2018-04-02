@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     tools:context="ru.alexandrkutashov.mapviewtestapp.MainActivity">
 
-    <ru.alexandrkutashov.mapviewtestapp.mapview.MapView
+    <ru.alexandrkutashov.mapviewtestapp.mapview.ui.MapView
         android:id="@+id/mapView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

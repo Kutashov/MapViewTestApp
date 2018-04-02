@@ -1,7 +1,9 @@
-package ru.alexandrkutashov.mapviewtestapp.mapview;
+package ru.alexandrkutashov.mapviewtestapp.mapview.ui;
 
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
+
+import ru.alexandrkutashov.mapviewtestapp.mapview.data.model.Tile;
 
 /**
  * Слушатель статуса загрузки картинки
@@ -10,7 +12,7 @@ import android.support.annotation.NonNull;
  *         on 01.04.2018
  */
 
-interface IOnBitmapLoadedListener {
+public interface IOnBitmapLoadedListener {
 
     /**
      * Уведомляет, что тайл загружен

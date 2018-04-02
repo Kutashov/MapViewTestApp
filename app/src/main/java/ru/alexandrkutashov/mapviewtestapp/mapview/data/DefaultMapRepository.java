@@ -1,8 +1,13 @@
-package ru.alexandrkutashov.mapviewtestapp.mapview;
+package ru.alexandrkutashov.mapviewtestapp.mapview.data;
 
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+
+import ru.alexandrkutashov.mapviewtestapp.mapview.data.api.IMapApiMapper;
+import ru.alexandrkutashov.mapviewtestapp.mapview.data.disk.IMapDiskManager;
+import ru.alexandrkutashov.mapviewtestapp.mapview.data.memory.IMapMemoryManager;
+import ru.alexandrkutashov.mapviewtestapp.mapview.data.model.Tile;
 
 /**
  * Дефолтная реализация {@link IMapRepository}

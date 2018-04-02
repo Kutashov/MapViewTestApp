@@ -1,5 +1,6 @@
-package ru.alexandrkutashov.mapviewtestapp.mapview;
+package ru.alexandrkutashov.mapviewtestapp.mapview.ui;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -21,6 +22,8 @@ import java.lang.ref.WeakReference;
 import java.util.Map;
 
 import ru.alexandrkutashov.mapviewtestapp.MapApp;
+import ru.alexandrkutashov.mapviewtestapp.mapview.domain.IMapInteractor;
+import ru.alexandrkutashov.mapviewtestapp.mapview.data.model.Tile;
 
 import static java.lang.Math.abs;
 
@@ -177,6 +180,7 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener {
         super.onRestoreInstanceState(state);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()) {

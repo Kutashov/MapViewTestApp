@@ -1,4 +1,4 @@
-package ru.alexandrkutashov.mapviewtestapp.mapview;
+package ru.alexandrkutashov.mapviewtestapp.mapview.domain;
 
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
@@ -7,6 +7,12 @@ import android.util.ArrayMap;
 import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.concurrent.Future;
+
+import ru.alexandrkutashov.mapviewtestapp.mapview.data.IMapRepository;
+import ru.alexandrkutashov.mapviewtestapp.mapview.data.model.Tile;
+import ru.alexandrkutashov.mapviewtestapp.mapview.ext.Executor;
+import ru.alexandrkutashov.mapviewtestapp.mapview.ext.TileDownloadRunnable;
+import ru.alexandrkutashov.mapviewtestapp.mapview.ui.IOnBitmapLoadedListener;
 
 /**
  * Дефолтный интерактор-помощник для вью карты

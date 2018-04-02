@@ -1,4 +1,4 @@
-package ru.alexandrkutashov.mapviewtestapp.mapview;
+package ru.alexandrkutashov.mapviewtestapp.mapview.data.disk;
 
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -15,6 +15,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import ru.alexandrkutashov.mapviewtestapp.mapview.data.model.Tile;
+import ru.alexandrkutashov.mapviewtestapp.mapview.ext.Executor;
 
 /**
  * Дефолтная реализация {@link IMapDiskManager}
