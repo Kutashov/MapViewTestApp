@@ -8,8 +8,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static android.os.Process.THREAD_PRIORITY_BACKGROUND;
-
 /**
  * Вспомогательный класс для работы с потоками. Используется тред-пул для работы с сетью
  * и екзекьютор для выполнения на основном потоке.
@@ -54,7 +52,7 @@ public class Executor {
         @Override
         public Thread newThread(@NonNull Runnable runnable) {
             Thread thread = new Thread(runnable);
-            thread.setPriority(THREAD_PRIORITY_BACKGROUND);
+            thread.setPriority(Thread.NORM_PRIORITY);
             return thread;
         }
     }

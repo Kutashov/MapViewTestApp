@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
@@ -22,10 +23,11 @@ import java.lang.ref.WeakReference;
 import java.util.Map;
 
 import ru.alexandrkutashov.mapviewtestapp.MapApp;
-import ru.alexandrkutashov.mapviewtestapp.mapview.domain.IMapInteractor;
 import ru.alexandrkutashov.mapviewtestapp.mapview.data.model.Tile;
+import ru.alexandrkutashov.mapviewtestapp.mapview.domain.IMapInteractor;
 
 import static java.lang.Math.abs;
+import static java.lang.Thread.MAX_PRIORITY;
 
 /**
  * Класс для работы с картами.
@@ -100,6 +102,8 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener {
 
     private Map<Tile, WeakReference<Bitmap>> mTiles = new ArrayMap<>();
 
+    private Thread mClearSubCanvas;
+
     public MapView(Context context) {
         super(context);
         init();
@@ -131,7 +135,6 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener {
             mAnchorY = (getHeight() - mTileHeight) / 2;
         }
         setWillNotDraw(false);
-        setWillNotCacheDrawing(true);
 
         mMapInteractor.setCacheSize(DEFAULT_CACHED_TILE_FACTOR *
                 (getWidth() / DEFAULT_TILE_WIDTH) * getHeight() / DEFAULT_TILE_HEIGHT);
@@ -142,6 +145,9 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener {
         if (mCentralTile == null) {
             return;
         }
+
+        //Возможно очищать подложку при перерисовке - неизвестно какой стиль работы лучше
+        //mClearSubCanvas.run();
 
         drawTiles(canvas);
     }
@@ -232,6 +238,13 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener {
     private void init() {
         mTileHeight = DEFAULT_TILE_HEIGHT;
         mTileWidth = DEFAULT_TILE_WIDTH;
+
+        mClearSubCanvas = new Thread(() -> {
+            Canvas surface = getHolder().lockCanvas();
+            surface.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+            getHolder().unlockCanvasAndPost(surface);
+        });
+        mClearSubCanvas.setPriority(MAX_PRIORITY);
 
         mMapInteractor = MapApp.getInstance().getMapInteractor();
     }
