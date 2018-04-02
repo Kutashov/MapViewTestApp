@@ -20,6 +20,8 @@ import android.view.SurfaceView;
 import java.lang.ref.WeakReference;
 import java.util.Map;
 
+import ru.alexandrkutashov.mapviewtestapp.MapApp;
+
 import static java.lang.Math.abs;
 
 /**
@@ -227,7 +229,7 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener {
         mTileHeight = DEFAULT_TILE_HEIGHT;
         mTileWidth = DEFAULT_TILE_WIDTH;
 
-        mMapInteractor = new DefaultMapInteractor(new DefaultMapApiMapper());
+        mMapInteractor = MapApp.getInstance().getMapInteractor();
     }
 
     private void drawTiles(@NonNull Canvas canvas) {

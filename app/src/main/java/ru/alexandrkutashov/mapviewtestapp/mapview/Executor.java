@@ -26,9 +26,6 @@ public class Executor {
 
     private BlockingQueue<Runnable> mTaskQueue = new LinkedBlockingStack<>();
 
-    /**
-     * an instance of DefaultExecutorSupplier
-     */
     private static Executor sInstance;
 
     private ExecutorService mExecutorService = new ThreadPoolExecutor(NUMBER_OF_CORES,

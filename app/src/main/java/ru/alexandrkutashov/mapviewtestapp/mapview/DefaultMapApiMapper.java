@@ -3,6 +3,7 @@ package ru.alexandrkutashov.mapviewtestapp.mapview;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.io.IOException;
 import java.net.URL;
@@ -20,9 +21,10 @@ public class DefaultMapApiMapper implements IMapApiMapper {
     private static final String BASE_URL = "http://b.tile.opencyclemap.org/cycle/16/";
 
     @Override
-    public Bitmap getTile(int x, int y) {
+    @Nullable
+    public Bitmap getTile(Tile tile) {
         try {
-            URL url = new URL(BitmapUrlFormatter.format(BASE_URL, x, y, EXTENSION));
+            URL url = new URL(BitmapUrlFormatter.format(BASE_URL, tile.x, tile.y, EXTENSION));
             return BitmapFactory.decodeStream(url.openConnection().getInputStream());
         } catch (IOException e) {
             e.printStackTrace();

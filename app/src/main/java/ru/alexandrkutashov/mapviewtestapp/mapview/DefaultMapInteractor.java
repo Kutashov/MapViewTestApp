@@ -20,13 +20,13 @@ public class DefaultMapInteractor implements IMapInteractor {
     private static final int DEFAULT_CACHE_SIZE = 500;
 
     private final Map<Tile, Bitmap> mTiles = new ArrayMap<>();
-    private final IMapApiMapper mMapApiMapper;
+    private final IMapRepository mMapRepository;
     private final Map<Tile, Future> mLoading = new ArrayMap<>();
 
     private int mCacheSize = DEFAULT_CACHE_SIZE;
 
-    public DefaultMapInteractor(@NonNull IMapApiMapper mapApiMapper) {
-        mMapApiMapper = mapApiMapper;
+    public DefaultMapInteractor(@NonNull IMapRepository mapRepository) {
+        mMapRepository = mapRepository;
     }
 
     @Override
@@ -47,7 +47,7 @@ public class DefaultMapInteractor implements IMapInteractor {
                         }
                         return;
                     }
-                    final Bitmap bitmap = mMapApiMapper.getTile(tile.x, tile.y);
+                    final Bitmap bitmap = mMapRepository.getTile(tile);
 
                     synchronized (DefaultMapInteractor.this) {
                         if (bitmap == null) {
@@ -81,6 +81,8 @@ public class DefaultMapInteractor implements IMapInteractor {
 
     @Override
     public void onDestroy() {
+        //На данный момент сценарий использования карт неизвестен,
+        //тем не менее отменить запросы можно.
         for (Future future : mLoading.values()) {
             future.cancel(true);
         }

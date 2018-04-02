@@ -1,7 +1,5 @@
 package ru.alexandrkutashov.mapviewtestapp;
 
-import junit.framework.Assert;
-
 import org.junit.Test;
 
 import ru.alexandrkutashov.mapviewtestapp.mapview.DefaultMapApiMapper;
@@ -9,6 +7,8 @@ import ru.alexandrkutashov.mapviewtestapp.mapview.DefaultMapApiMapper;
 import static junit.framework.Assert.assertEquals;
 
 /**
+ * Тест на {@link DefaultMapApiMapper.BitmapUrlFormatter}
+ *
  * @author Alexandr Kutashov
  *         on 01.04.2018
  */

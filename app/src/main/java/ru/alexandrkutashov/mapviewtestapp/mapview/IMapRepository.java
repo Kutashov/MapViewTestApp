@@ -5,17 +5,17 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 /**
- * Фасад для загрузки тайлов карты
+ * Класс, отвечающий за получение тайлов для карты различными способами:
+ * с диска, по сети и др.
  *
  * @author Alexandr Kutashov
- *         on 01.04.2018
+ *         on 02.04.2018
  */
 
-public interface IMapApiMapper {
+public interface IMapRepository {
 
     /**
      * Загружает необходимый тайл
-     * @param tile тайл позиции
      * @return загруженный битмап тайла
      */
     @Nullable
