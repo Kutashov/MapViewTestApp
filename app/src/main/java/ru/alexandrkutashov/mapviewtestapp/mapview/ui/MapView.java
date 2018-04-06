@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,6 +16,7 @@ import android.support.annotation.RequiresApi;
 import android.util.ArrayMap;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import java.lang.ref.WeakReference;
@@ -27,7 +27,6 @@ import ru.alexandrkutashov.mapviewtestapp.mapview.data.model.Tile;
 import ru.alexandrkutashov.mapviewtestapp.mapview.domain.IMapInteractor;
 
 import static java.lang.Math.abs;
-import static java.lang.Thread.MAX_PRIORITY;
 
 /**
  * Класс для работы с картами.
@@ -37,7 +36,7 @@ import static java.lang.Thread.MAX_PRIORITY;
  *         on 01.04.2018
  */
 
-public class MapView extends SurfaceView implements IOnBitmapLoadedListener {
+public class MapView extends SurfaceView implements IOnBitmapLoadedListener, SurfaceHolder.Callback {
 
     //region parcelable flags
     private static final String PARCELABLE_SUPER = "superState";
@@ -102,7 +101,7 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener {
 
     private Map<Tile, WeakReference<Bitmap>> mTiles = new ArrayMap<>();
 
-    private Thread mClearSubCanvas;
+    private Bitmap mStubBitmap;
 
     public MapView(Context context) {
         super(context);
@@ -140,16 +139,14 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener {
                 (getWidth() / DEFAULT_TILE_WIDTH) * getHeight() / DEFAULT_TILE_HEIGHT);
     }
 
-    @Override
-    protected void onDraw(Canvas canvas) {
+    private void reDraw(){
         if (mCentralTile == null) {
             return;
         }
 
-        //Возможно очищать подложку при перерисовке - неизвестно какой стиль работы лучше
-        //mClearSubCanvas.run();
-
+        Canvas canvas = getHolder().lockCanvas(null);
         drawTiles(canvas);
+        getHolder().unlockCanvasAndPost(canvas);
     }
 
     @Override
@@ -198,13 +195,13 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener {
             case MotionEvent.ACTION_UP:
                 float dx = event.getX() - mLastTouchX;
                 if (assertDiffOutWidthBounds(dx)) {
-                    invalidate();
+                    reDraw();
                     return false;
                 }
 
                 float dy = event.getY() - mLastTouchY;
                 if (assertDiffOutHeightBounds(dy)) {
-                    invalidate();
+                    reDraw();
                     return false;
                 }
 
@@ -213,10 +210,31 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener {
 
                 mLastTouchX = event.getX();
                 mLastTouchY = event.getY();
-                invalidate();
+                reDraw();
                 break;
         }
         return true;
+    }
+
+    @Override
+    public void surfaceCreated(SurfaceHolder holder) {
+        reDraw();
+    }
+
+    @Override
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder holder) {
+    }
+
+    public void setCentralTile(int x, int y) {
+        mCentralTile = new Tile(x, y);
+
+        if (getHolder().getSurface().isValid()) {
+            reDraw();
+        }
     }
 
     private boolean assertDiffOutWidthBounds(float dx) {
@@ -229,24 +247,16 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener {
                 abs((getHeight() - mAnchorY - dy)) / mTileHeight >= DEFAULT_MAP_HEIGHT / 2;
     }
 
-    public void setCentralTile(int x, int y) {
-        mCentralTile = new Tile(x, y);
-
-        invalidate();
-    }
-
     private void init() {
         mTileHeight = DEFAULT_TILE_HEIGHT;
         mTileWidth = DEFAULT_TILE_WIDTH;
 
-        mClearSubCanvas = new Thread(() -> {
-            Canvas surface = getHolder().lockCanvas();
-            surface.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-            getHolder().unlockCanvasAndPost(surface);
-        });
-        mClearSubCanvas.setPriority(MAX_PRIORITY);
+        mStubBitmap = Bitmap.createBitmap(DEFAULT_TILE_WIDTH, DEFAULT_TILE_HEIGHT, Bitmap.Config.ARGB_8888);
+        mStubBitmap.eraseColor(Color.GRAY);
 
         mMapInteractor = MapApp.getInstance().getMapInteractor();
+
+        getHolder().addCallback(this);
     }
 
     private void drawTiles(@NonNull Canvas canvas) {
@@ -261,6 +271,7 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener {
                 tile = new Tile(i, j);
                 bitmap = getCachedBitmap(tile);
                 if (bitmap == null) {
+                    drawTile(canvas, tile, mStubBitmap);
                     mMapInteractor.getTile(tile, new WeakReference<>(this));
                 } else {
                     drawTile(canvas, tile, bitmap);
