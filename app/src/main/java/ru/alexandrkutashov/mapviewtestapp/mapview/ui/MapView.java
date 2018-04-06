@@ -124,65 +124,6 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener, Sur
         init();
     }
 
-    @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        super.onLayout(changed, left, top, right, bottom);
-        if (mAnchorX == 0) {
-            mAnchorX = (getWidth() - mTileWidth) / 2;
-        }
-        if (mAnchorY == 0) {
-            mAnchorY = (getHeight() - mTileHeight) / 2;
-        }
-        setWillNotDraw(false);
-
-        mMapInteractor.setCacheSize(DEFAULT_CACHED_TILE_FACTOR *
-                (getWidth() / DEFAULT_TILE_WIDTH) * getHeight() / DEFAULT_TILE_HEIGHT);
-    }
-
-    private void reDraw(){
-        if (mCentralTile == null) {
-            return;
-        }
-
-        Canvas canvas = getHolder().lockCanvas(null);
-        drawTiles(canvas);
-        getHolder().unlockCanvasAndPost(canvas);
-    }
-
-    @Override
-    public void onBitmapLoaded(@NonNull Tile tile, @NonNull Bitmap bitmap) {
-        mTiles.put(tile, new WeakReference<>(bitmap));
-
-        drawTile(null, tile, bitmap);
-    }
-
-    @Nullable
-    @Override
-    protected Parcelable onSaveInstanceState() {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable(PARCELABLE_SUPER, super.onSaveInstanceState());
-        bundle.putSerializable(PARCELABLE_CENTRAL_TILE, mCentralTile);
-        bundle.putFloat(PARCELABLE_ANCHOR_X, mAnchorX);
-        bundle.putFloat(PARCELABLE_ANCHOR_Y, mAnchorY);
-        bundle.putFloat(PARCELABLE_LAST_TOUCH_X, mLastTouchX);
-        bundle.putFloat(PARCELABLE_LAST_TOUCH_Y, mLastTouchY);
-        return bundle;
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Parcelable state) {
-        if (state instanceof Bundle) {
-            Bundle bundle = (Bundle) state;
-            mCentralTile = (Tile) bundle.getSerializable(PARCELABLE_CENTRAL_TILE);
-            mAnchorX = bundle.getFloat(PARCELABLE_ANCHOR_X);
-            mAnchorY = bundle.getFloat(PARCELABLE_ANCHOR_Y);
-            mLastTouchX = bundle.getFloat(PARCELABLE_LAST_TOUCH_X);
-            mLastTouchY = bundle.getFloat(PARCELABLE_LAST_TOUCH_Y);
-            state = bundle.getParcelable(PARCELABLE_SUPER);
-        }
-        super.onRestoreInstanceState(state);
-    }
-
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -229,12 +170,71 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener, Sur
     public void surfaceDestroyed(SurfaceHolder holder) {
     }
 
+    @Override
+    public void onBitmapLoaded(@NonNull Tile tile, @NonNull Bitmap bitmap) {
+        mTiles.put(tile, new WeakReference<>(bitmap));
+
+        drawTile(null, tile, bitmap);
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+        if (mAnchorX == 0) {
+            mAnchorX = (getWidth() - mTileWidth) / 2;
+        }
+        if (mAnchorY == 0) {
+            mAnchorY = (getHeight() - mTileHeight) / 2;
+        }
+        setWillNotDraw(false);
+
+        mMapInteractor.setCacheSize(DEFAULT_CACHED_TILE_FACTOR *
+                (getWidth() / DEFAULT_TILE_WIDTH) * getHeight() / DEFAULT_TILE_HEIGHT);
+    }
+
+    @Nullable
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(PARCELABLE_SUPER, super.onSaveInstanceState());
+        bundle.putSerializable(PARCELABLE_CENTRAL_TILE, mCentralTile);
+        bundle.putFloat(PARCELABLE_ANCHOR_X, mAnchorX);
+        bundle.putFloat(PARCELABLE_ANCHOR_Y, mAnchorY);
+        bundle.putFloat(PARCELABLE_LAST_TOUCH_X, mLastTouchX);
+        bundle.putFloat(PARCELABLE_LAST_TOUCH_Y, mLastTouchY);
+        return bundle;
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        if (state instanceof Bundle) {
+            Bundle bundle = (Bundle) state;
+            mCentralTile = (Tile) bundle.getSerializable(PARCELABLE_CENTRAL_TILE);
+            mAnchorX = bundle.getFloat(PARCELABLE_ANCHOR_X);
+            mAnchorY = bundle.getFloat(PARCELABLE_ANCHOR_Y);
+            mLastTouchX = bundle.getFloat(PARCELABLE_LAST_TOUCH_X);
+            mLastTouchY = bundle.getFloat(PARCELABLE_LAST_TOUCH_Y);
+            state = bundle.getParcelable(PARCELABLE_SUPER);
+        }
+        super.onRestoreInstanceState(state);
+    }
+
     public void setCentralTile(int x, int y) {
         mCentralTile = new Tile(x, y);
 
         if (getHolder().getSurface().isValid()) {
             reDraw();
         }
+    }
+
+    private void reDraw(){
+        if (mCentralTile == null) {
+            return;
+        }
+
+        Canvas canvas = getHolder().lockCanvas(null);
+        drawTiles(canvas);
+        getHolder().unlockCanvasAndPost(canvas);
     }
 
     private boolean assertDiffOutWidthBounds(float dx) {
