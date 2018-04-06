@@ -35,13 +35,13 @@ public class DefaultMapDiskManager implements IMapDiskManager {
     private static final int MAX_FILES_ON_DISK = 2500;
     private static final int FILES_TO_REMOVE = MAX_FILES_ON_DISK / 2;
 
-    private Context mContext;
+    private final Context mContext;
 
     private int mFileCount = 0;
 
     public DefaultMapDiskManager(@NonNull Context applicationContext) {
         mContext = applicationContext;
-        Executor.getInstance().forBackgroundTasks().submit(this::tryToDeleteOldFiles);
+        Executor.getInstance().forIOTasks().submit(this::tryToDeleteOldFiles);
     }
 
     @Override
@@ -92,7 +92,7 @@ public class DefaultMapDiskManager implements IMapDiskManager {
         }
     }
 
-    private synchronized void tryToDeleteOldFiles() {
+    private void tryToDeleteOldFiles() {
         ContextWrapper cw = new ContextWrapper(mContext.getApplicationContext());
         File directory = cw.getDir(TILE_DIRECTORY_NAME, Context.MODE_PRIVATE);
         File[] listFiles = directory.listFiles();
@@ -103,9 +103,10 @@ public class DefaultMapDiskManager implements IMapDiskManager {
             Collections.sort(files, (o1, o2) -> {
                 if (o1.lastModified() > o2.lastModified()) {
                     return 1;
-                } else {
+                } else if (o1.lastModified() < o2.lastModified()) {
                     return -1;
                 }
+                return 0;
             });
             int i = files.size() - 1;
             int count = FILES_TO_REMOVE;

@@ -18,7 +18,7 @@ import ru.alexandrkutashov.mapviewtestapp.mapview.ui.IOnBitmapLoadedListener;
  * Дефолтный интерактор-помощник для вью карты
  *
  * @author Alexandr Kutashov
- *         on 01.04.2018
+ * on 01.04.2018
  */
 
 public class DefaultMapInteractor implements IMapInteractor {
@@ -31,31 +31,29 @@ public class DefaultMapInteractor implements IMapInteractor {
     }
 
     @Override
-    public void getTile(@NonNull Tile tile, @NonNull final WeakReference<IOnBitmapLoadedListener> listener) {
+    public synchronized void getTile(@NonNull Tile tile,
+                                     @NonNull final WeakReference<IOnBitmapLoadedListener> listenerRef) {
 
         if (mLoading.get(tile) == null) {
             mLoading.put(tile, Executor.getInstance().forBackgroundTasks().submit(new TileDownloadRunnable() {
                 @Override
                 public void run() {
                     if (isSpoiled()) {
-                        synchronized (DefaultMapInteractor.this) {
-                            mLoading.remove(tile);
-                        }
-                        return;
+                        mLoading.remove(tile);
                     }
                     final Bitmap bitmap = mMapRepository.getTile(tile);
-
-                    synchronized (DefaultMapInteractor.this) {
-                        if (bitmap == null) {
-                            mLoading.remove(tile);
-                            getTile(tile, listener);
-                            return;
-                        }
-
+                    if (bitmap == null) {
                         mLoading.remove(tile);
+                        getTile(tile, listenerRef);
+                        return;
+                    }
 
-                        if (listener.get() != null) {
-                            listener.get().onBitmapLoaded(tile, bitmap);
+                    mLoading.remove(tile);
+
+                    IOnBitmapLoadedListener listener = listenerRef.get();
+                    if (listener != null) {
+                        synchronized (listener) {
+                            listener.onBitmapLoaded(tile, bitmap);
                         }
                     }
                 }

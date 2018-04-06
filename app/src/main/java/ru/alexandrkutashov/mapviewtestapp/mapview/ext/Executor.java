@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -13,7 +14,7 @@ import java.util.concurrent.TimeUnit;
  * и екзекьютор для выполнения на основном потоке.
  *
  * @author Alexandr Kutashov
- *         on 01.04.2018
+ * on 01.04.2018
  */
 
 public class Executor {
@@ -24,7 +25,9 @@ public class Executor {
 
     private BlockingQueue<Runnable> mTaskQueue = new LinkedBlockingStack<>();
 
-    private static Executor sInstance;
+    private static volatile Executor sInstance;
+
+    private ExecutorService mIOExecutor = Executors.newSingleThreadExecutor();
 
     private ExecutorService mExecutorService = new ThreadPoolExecutor(NUMBER_OF_CORES,
             NUMBER_OF_CORES * 2,
@@ -37,7 +40,9 @@ public class Executor {
     public static Executor getInstance() {
         if (sInstance == null) {
             synchronized (Executor.class) {
-                sInstance = new Executor();
+                if (sInstance == null) {
+                    sInstance = new Executor();
+                }
             }
         }
         return sInstance;
@@ -45,6 +50,10 @@ public class Executor {
 
     public ExecutorService forBackgroundTasks() {
         return mExecutorService;
+    }
+
+    public ExecutorService forIOTasks() {
+        return mIOExecutor;
     }
 
     private static class BackgroundThreadFactory implements ThreadFactory {

@@ -25,12 +25,12 @@ public class DefaultMapMemoryManager implements IMapMemoryManager {
 
     @Nullable
     @Override
-    public Bitmap getFromMemory(@NonNull Tile tile) {
+    public synchronized Bitmap getFromMemory(@NonNull Tile tile) {
         return mTiles.get(tile);
     }
 
     @Override
-    public void saveToMemory(@NonNull Tile tile, @NonNull Bitmap bitmap) {
+    public synchronized void saveToMemory(@NonNull Tile tile, @NonNull Bitmap bitmap) {
         if (mTiles.size() > mCacheSize) {
             mTiles.clear();
         }

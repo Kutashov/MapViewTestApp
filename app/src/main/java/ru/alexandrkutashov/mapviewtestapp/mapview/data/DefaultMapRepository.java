@@ -4,10 +4,13 @@ import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import java.util.concurrent.ExecutionException;
+
 import ru.alexandrkutashov.mapviewtestapp.mapview.data.api.IMapApiMapper;
 import ru.alexandrkutashov.mapviewtestapp.mapview.data.disk.IMapDiskManager;
 import ru.alexandrkutashov.mapviewtestapp.mapview.data.memory.IMapMemoryManager;
 import ru.alexandrkutashov.mapviewtestapp.mapview.data.model.Tile;
+import ru.alexandrkutashov.mapviewtestapp.mapview.ext.Executor;
 
 /**
  * Дефолтная реализация {@link IMapRepository}
@@ -33,7 +36,12 @@ public class DefaultMapRepository implements IMapRepository {
     public Bitmap getTile(@NonNull Tile tile) {
         Bitmap result = mMapMemoryManager.getFromMemory(tile);
         if (result == null) {
-            result = mMapDiskManager.getFromDisk(tile);
+            try {
+                result = Executor.getInstance().forIOTasks().submit(() -> mMapDiskManager.getFromDisk(tile)).get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+
             if (result != null) {
                 mMapMemoryManager.saveToMemory(tile, result);
             }
@@ -41,8 +49,9 @@ public class DefaultMapRepository implements IMapRepository {
         if (result == null) {
             result = mMapApiMapper.getTile(tile);
             if (result != null) {
+                Bitmap finalResult = result;
+                Executor.getInstance().forIOTasks().submit(() -> mMapDiskManager.saveToDisk(tile, finalResult));
                 mMapMemoryManager.saveToMemory(tile, result);
-                mMapDiskManager.saveToDisk(tile, result);
             }
         }
         return result;

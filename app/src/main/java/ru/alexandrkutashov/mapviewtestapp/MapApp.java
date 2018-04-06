@@ -11,14 +11,12 @@ import ru.alexandrkutashov.mapviewtestapp.mapview.domain.IMapInteractor;
 
 /**
  * @author Alexandr Kutashov
- *         on 02.04.2018
+ * on 02.04.2018
  */
 
 public class MapApp extends Application {
 
     private static MapApp sInstance;
-
-    private IMapInteractor mMapInteractor;
 
     @Override
     public void onCreate() {
@@ -32,12 +30,9 @@ public class MapApp extends Application {
     }
 
     public IMapInteractor getMapInteractor() {
-        if (mMapInteractor == null) {
-            mMapInteractor = new DefaultMapInteractor(new DefaultMapRepository(
-                    new DefaultMapMemoryManager(),
-                    new DefaultMapApiMapper(),
-                    new DefaultMapDiskManager(getApplicationContext())));
-        }
-        return mMapInteractor;
+        return new DefaultMapInteractor(new DefaultMapRepository(
+                new DefaultMapMemoryManager(),
+                new DefaultMapApiMapper(),
+                new DefaultMapDiskManager(getApplicationContext())));
     }
 }
