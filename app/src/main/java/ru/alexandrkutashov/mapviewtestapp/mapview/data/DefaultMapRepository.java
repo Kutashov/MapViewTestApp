@@ -92,7 +92,7 @@ public class DefaultMapRepository implements IMapRepository {
                     mLoading.remove(tile);
 
                     mMapMemoryManager.saveToMemory(tile, result);
-                    Executor.getInstance().forIOTasks().submit(() -> mMapDiskManager.saveToDisk(tile, result));
+                    mMapDiskManager.saveToDisk(tile, result);
                     mBitmapEmitter.emit(tile, result);
                 }
             }));

@@ -27,8 +27,6 @@ public class Executor {
 
     private static volatile Executor sInstance;
 
-    private ExecutorService mIOExecutor = Executors.newSingleThreadExecutor();
-
     private ExecutorService mExecutorService = new ThreadPoolExecutor(NUMBER_OF_CORES,
             NUMBER_OF_CORES * 2,
             KEEP_ALIVE_TIME,
@@ -50,10 +48,6 @@ public class Executor {
 
     public ExecutorService forBackgroundTasks() {
         return mExecutorService;
-    }
-
-    public ExecutorService forIOTasks() {
-        return mIOExecutor;
     }
 
     private static class BackgroundThreadFactory implements ThreadFactory {

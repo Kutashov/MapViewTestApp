@@ -68,7 +68,7 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener, Sur
     /**
      * Множитель для количества кешируемых ячеек. Выбран опытным путем, может быть изменен
      */
-    private static final int DEFAULT_CACHED_TILE_FACTOR = 10;
+    private static final int DEFAULT_CACHED_TILE_FACTOR = 8;
 
     /**
      * Неизменный установленный центр карты
@@ -230,12 +230,18 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener, Sur
         }
     }
 
+    private Bitmap getStubBitmap() {
+        Bitmap bitmap = Bitmap.createBitmap(DEFAULT_TILE_WIDTH, DEFAULT_TILE_HEIGHT, Bitmap.Config.ARGB_8888);
+        bitmap.eraseColor(Color.GRAY);
+        return bitmap;
+    }
+
     private void reDraw(){
         if (mCentralTile == null) {
             return;
         }
 
-        Canvas canvas = getHolder().lockCanvas(null);
+        Canvas canvas = getHolder().lockCanvas();
         drawTiles(canvas);
         getHolder().unlockCanvasAndPost(canvas);
     }
@@ -254,9 +260,7 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener, Sur
         mTileHeight = DEFAULT_TILE_HEIGHT;
         mTileWidth = DEFAULT_TILE_WIDTH;
 
-        mStubBitmap = Bitmap.createBitmap(DEFAULT_TILE_WIDTH, DEFAULT_TILE_HEIGHT, Bitmap.Config.ARGB_8888);
-        mStubBitmap.eraseColor(Color.GRAY);
-
+        mStubBitmap = getStubBitmap();
         mMapInteractor = MapApp.getInstance().getMapInteractor();
         getHolder().addCallback(this);
     }

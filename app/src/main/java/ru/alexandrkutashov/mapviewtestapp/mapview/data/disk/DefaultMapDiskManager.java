@@ -41,11 +41,11 @@ public class DefaultMapDiskManager implements IMapDiskManager {
 
     public DefaultMapDiskManager(@NonNull Context applicationContext) {
         mContext = applicationContext;
-        Executor.getInstance().forIOTasks().submit(this::tryToDeleteOldFiles);
+        Executor.getInstance().forBackgroundTasks().submit(this::tryToDeleteOldFiles);
     }
 
     @Override
-    public void saveToDisk(@NonNull Tile tile, @NonNull Bitmap bitmap) {
+    public synchronized void saveToDisk(@NonNull Tile tile, @NonNull Bitmap bitmap) {
         if (mFileCount > MAX_FILES_ON_DISK) {
             tryToDeleteOldFiles();
         }
@@ -55,7 +55,7 @@ public class DefaultMapDiskManager implements IMapDiskManager {
 
     @Override
     @Nullable
-    public Bitmap getFromDisk(@NonNull Tile tile) {
+    public synchronized Bitmap getFromDisk(@NonNull Tile tile) {
         try {
             ContextWrapper cw = new ContextWrapper(mContext);
             File directory = cw.getDir(TILE_DIRECTORY_NAME, Context.MODE_PRIVATE);
