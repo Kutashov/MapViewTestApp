@@ -68,7 +68,7 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener, Sur
     /**
      * Множитель для количества кешируемых ячеек. Выбран опытным путем, может быть изменен
      */
-    private static final int DEFAULT_CACHED_TILE_FACTOR = 6;
+    private static final int DEFAULT_CACHED_TILE_FACTOR = 10;
 
     /**
      * Неизменный установленный центр карты
