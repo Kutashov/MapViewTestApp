@@ -4,6 +4,8 @@ import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import java.util.Observable;
+
 import ru.alexandrkutashov.mapviewtestapp.mapview.data.model.Tile;
 
 /**
@@ -28,4 +30,11 @@ public interface IMapRepository {
      * @param cacheSize размер кеша в шутках
      */
     void setCacheSize(int cacheSize);
+
+    /**
+     * Получить источник загруженных фрагментов карты
+     * @return источник фрагментов
+     */
+    @NonNull
+    Observable getBitmaps();
 }

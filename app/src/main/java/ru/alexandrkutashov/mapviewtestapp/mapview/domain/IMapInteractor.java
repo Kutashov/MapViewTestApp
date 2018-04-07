@@ -1,8 +1,7 @@
 package ru.alexandrkutashov.mapviewtestapp.mapview.domain;
 
+import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
-
-import java.lang.ref.WeakReference;
 
 import ru.alexandrkutashov.mapviewtestapp.mapview.data.model.Tile;
 import ru.alexandrkutashov.mapviewtestapp.mapview.ui.IOnBitmapLoadedListener;
@@ -19,9 +18,8 @@ public interface IMapInteractor {
     /**
      * Получает тайл по необходимой позиции
      * @param tile тайл позиции
-     * @param listener слушатель обработчика ответа
      */
-    void getTile(@NonNull Tile tile, @NonNull WeakReference<IOnBitmapLoadedListener> listener);
+    Bitmap getTile(@NonNull Tile tile);
 
     /**
      * Устанавливает размер кеша элементов ответов
@@ -30,7 +28,13 @@ public interface IMapInteractor {
     void setCacheSize(int cacheSize);
 
     /**
-     * Обработчик уничтожения объекта
+     * Устанавливает слушателя уведомлений о загруженных фрагментах карты
+     * @param listener слушатель
      */
-    void onDestroy();
+    void setListener(@NonNull IOnBitmapLoadedListener listener);
+
+    /**
+     * Удаляет установленного слушателя уведомлений о загруженных фрагментах
+     */
+    void removeListener();
 }

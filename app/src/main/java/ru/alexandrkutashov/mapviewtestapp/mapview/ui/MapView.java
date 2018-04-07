@@ -13,14 +13,10 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
-import android.util.ArrayMap;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-
-import java.lang.ref.WeakReference;
-import java.util.Map;
 
 import ru.alexandrkutashov.mapviewtestapp.MapApp;
 import ru.alexandrkutashov.mapviewtestapp.mapview.data.model.Tile;
@@ -72,7 +68,7 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener, Sur
     /**
      * Множитель для количества кешируемых ячеек. Выбран опытным путем, может быть изменен
      */
-    private static final int DEFAULT_CACHED_TILE_FACTOR = 3;
+    private static final int DEFAULT_CACHED_TILE_FACTOR = 6;
 
     /**
      * Неизменный установленный центр карты
@@ -98,9 +94,6 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener, Sur
     private int mTileHeight;
 
     private IMapInteractor mMapInteractor;
-
-    private Map<Tile, WeakReference<Bitmap>> mTiles = new ArrayMap<>();
-
     private Bitmap mStubBitmap;
 
     public MapView(Context context) {
@@ -172,9 +165,19 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener, Sur
 
     @Override
     public void onBitmapLoaded(@NonNull Tile tile, @NonNull Bitmap bitmap) {
-        mTiles.put(tile, new WeakReference<>(bitmap));
-
         drawTile(null, tile, bitmap);
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        mMapInteractor.setListener(this);
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        mMapInteractor.removeListener();
     }
 
     @Override
@@ -255,7 +258,6 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener, Sur
         mStubBitmap.eraseColor(Color.GRAY);
 
         mMapInteractor = MapApp.getInstance().getMapInteractor();
-
         getHolder().addCallback(this);
     }
 
@@ -269,10 +271,9 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener, Sur
         for (int i = topLeft.x; i <= bottomRight.x; i++) {
             for (int j = topLeft.y; j <= bottomRight.y; j++) {
                 tile = new Tile(i, j);
-                bitmap = getCachedBitmap(tile);
+                bitmap = mMapInteractor.getTile(tile);
                 if (bitmap == null) {
                     drawTile(canvas, tile, mStubBitmap);
-                    mMapInteractor.getTile(tile, new WeakReference<>(this));
                 } else {
                     drawTile(canvas, tile, bitmap);
                 }
@@ -321,20 +322,6 @@ public class MapView extends SurfaceView implements IOnBitmapLoadedListener, Sur
         paint.setAntiAlias(true);
         canvas.drawRect(new Rect(left, top,
                 left + bitmap.getWidth(), top + bitmap.getHeight()), paint);
-    }
-
-    @Nullable
-    private Bitmap getCachedBitmap(@NonNull Tile tile) {
-        WeakReference<Bitmap> reference = mTiles.get(tile);
-        if (reference == null) {
-            return null;
-        } else {
-            Bitmap result = reference.get();
-            if (result == null) {
-                mTiles.remove(tile);
-            }
-            return result;
-        }
     }
 
     @NonNull

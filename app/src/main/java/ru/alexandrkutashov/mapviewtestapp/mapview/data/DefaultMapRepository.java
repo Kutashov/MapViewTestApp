@@ -4,19 +4,24 @@ import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import java.util.concurrent.ExecutionException;
+import java.util.Map;
+import java.util.Observable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
 
 import ru.alexandrkutashov.mapviewtestapp.mapview.data.api.IMapApiMapper;
 import ru.alexandrkutashov.mapviewtestapp.mapview.data.disk.IMapDiskManager;
 import ru.alexandrkutashov.mapviewtestapp.mapview.data.memory.IMapMemoryManager;
 import ru.alexandrkutashov.mapviewtestapp.mapview.data.model.Tile;
+import ru.alexandrkutashov.mapviewtestapp.mapview.data.model.TileBitmap;
 import ru.alexandrkutashov.mapviewtestapp.mapview.ext.Executor;
+import ru.alexandrkutashov.mapviewtestapp.mapview.ext.TileDownloadRunnable;
 
 /**
  * Дефолтная реализация {@link IMapRepository}
  *
  * @author Alexandr Kutashov
- *         on 02.04.2018
+ * on 02.04.2018
  */
 
 public class DefaultMapRepository implements IMapRepository {
@@ -24,11 +29,15 @@ public class DefaultMapRepository implements IMapRepository {
     private final IMapMemoryManager mMapMemoryManager;
     private final IMapApiMapper mMapApiMapper;
     private final IMapDiskManager mMapDiskManager;
+    private final BitmapEmitter mBitmapEmitter;
+    private final Map<Tile, Future> mLoading;
 
     public DefaultMapRepository(IMapMemoryManager mapMemoryManager, @NonNull IMapApiMapper mapApiMapper, IMapDiskManager mapDiskManager) {
         this.mMapMemoryManager = mapMemoryManager;
         this.mMapApiMapper = mapApiMapper;
         this.mMapDiskManager = mapDiskManager;
+        mBitmapEmitter = new BitmapEmitter();
+        mLoading = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -36,23 +45,7 @@ public class DefaultMapRepository implements IMapRepository {
     public Bitmap getTile(@NonNull Tile tile) {
         Bitmap result = mMapMemoryManager.getFromMemory(tile);
         if (result == null) {
-            try {
-                result = Executor.getInstance().forIOTasks().submit(() -> mMapDiskManager.getFromDisk(tile)).get();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
-
-            if (result != null) {
-                mMapMemoryManager.saveToMemory(tile, result);
-            }
-        }
-        if (result == null) {
-            result = mMapApiMapper.getTile(tile);
-            if (result != null) {
-                Bitmap finalResult = result;
-                Executor.getInstance().forIOTasks().submit(() -> mMapDiskManager.saveToDisk(tile, finalResult));
-                mMapMemoryManager.saveToMemory(tile, result);
-            }
+            getFromDisk(tile);
         }
         return result;
     }
@@ -60,5 +53,60 @@ public class DefaultMapRepository implements IMapRepository {
     @Override
     public void setCacheSize(int cacheSize) {
         mMapMemoryManager.setSize(cacheSize);
+    }
+
+    @Override
+    @NonNull
+    public Observable getBitmaps() {
+        return mBitmapEmitter;
+    }
+
+    private void getFromDisk(Tile tile) {
+        Executor.getInstance().forBackgroundTasks().submit(() -> {
+            Bitmap result = mMapDiskManager.getFromDisk(tile);
+            if (result != null) {
+                mBitmapEmitter.emit(tile, result);
+                mMapMemoryManager.saveToMemory(tile, result);
+            } else {
+                downloadTile(tile);
+            }
+        });
+    }
+
+    private synchronized void downloadTile(Tile tile) {
+        if (mLoading.get(tile) == null) {
+            mLoading.put(tile, Executor.getInstance().forBackgroundTasks().submit(new TileDownloadRunnable() {
+                @Override
+                public void run() {
+                    if (isSpoiled()) {
+                        mLoading.remove(tile);
+                        return;
+                    }
+                    final Bitmap result = mMapApiMapper.getTile(tile);
+                    if (result == null) {
+                        mLoading.remove(tile);
+                        downloadTile(tile);
+                        return;
+                    }
+
+                    mLoading.remove(tile);
+
+                    mMapMemoryManager.saveToMemory(tile, result);
+                    Executor.getInstance().forIOTasks().submit(() -> mMapDiskManager.saveToDisk(tile, result));
+                    mBitmapEmitter.emit(tile, result);
+                }
+            }));
+        }
+    }
+
+    /**
+     * Класс-помощник для передачи загруженных фрагментов карты
+     */
+    private static final class BitmapEmitter extends Observable {
+
+        public void emit(Tile tile, Bitmap bitmap) {
+            setChanged();
+            notifyObservers(new TileBitmap(tile, bitmap));
+        }
     }
 }

@@ -2,16 +2,13 @@ package ru.alexandrkutashov.mapviewtestapp.mapview.domain;
 
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
-import android.util.ArrayMap;
 
-import java.lang.ref.WeakReference;
-import java.util.Map;
-import java.util.concurrent.Future;
+import java.util.Observable;
+import java.util.Observer;
 
 import ru.alexandrkutashov.mapviewtestapp.mapview.data.IMapRepository;
 import ru.alexandrkutashov.mapviewtestapp.mapview.data.model.Tile;
-import ru.alexandrkutashov.mapviewtestapp.mapview.ext.Executor;
-import ru.alexandrkutashov.mapviewtestapp.mapview.ext.TileDownloadRunnable;
+import ru.alexandrkutashov.mapviewtestapp.mapview.data.model.TileBitmap;
 import ru.alexandrkutashov.mapviewtestapp.mapview.ui.IOnBitmapLoadedListener;
 
 /**
@@ -21,44 +18,19 @@ import ru.alexandrkutashov.mapviewtestapp.mapview.ui.IOnBitmapLoadedListener;
  * on 01.04.2018
  */
 
-public class DefaultMapInteractor implements IMapInteractor {
+public class DefaultMapInteractor implements IMapInteractor, Observer {
 
     private final IMapRepository mMapRepository;
-    private final Map<Tile, Future> mLoading = new ArrayMap<>();
+    private IOnBitmapLoadedListener mListener;
 
     public DefaultMapInteractor(@NonNull IMapRepository mapRepository) {
         mMapRepository = mapRepository;
+        mMapRepository.getBitmaps().addObserver(this);
     }
 
     @Override
-    public synchronized void getTile(@NonNull Tile tile,
-                                     @NonNull final WeakReference<IOnBitmapLoadedListener> listenerRef) {
-
-        if (mLoading.get(tile) == null) {
-            mLoading.put(tile, Executor.getInstance().forBackgroundTasks().submit(new TileDownloadRunnable() {
-                @Override
-                public void run() {
-                    if (isSpoiled()) {
-                        mLoading.remove(tile);
-                    }
-                    final Bitmap bitmap = mMapRepository.getTile(tile);
-                    if (bitmap == null) {
-                        mLoading.remove(tile);
-                        getTile(tile, listenerRef);
-                        return;
-                    }
-
-                    mLoading.remove(tile);
-
-                    IOnBitmapLoadedListener listener = listenerRef.get();
-                    if (listener != null) {
-                        synchronized (listener) {
-                            listener.onBitmapLoaded(tile, bitmap);
-                        }
-                    }
-                }
-            }));
-        }
+    public Bitmap getTile(@NonNull Tile tile) {
+        return mMapRepository.getTile(tile);
     }
 
     @Override
@@ -67,11 +39,20 @@ public class DefaultMapInteractor implements IMapInteractor {
     }
 
     @Override
-    public void onDestroy() {
-        //На данный момент сценарий использования карт неизвестен,
-        //тем не менее отменить запросы можно.
-        for (Future future : mLoading.values()) {
-            future.cancel(true);
+    public void setListener(@NonNull IOnBitmapLoadedListener listener) {
+        mListener = listener;
+    }
+
+    @Override
+    public void removeListener() {
+        mListener = null;
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        if (mListener != null) {
+            TileBitmap tileBitmap = (TileBitmap) arg;
+            mListener.onBitmapLoaded(tileBitmap.tile, tileBitmap.bitmap);
         }
     }
 }
