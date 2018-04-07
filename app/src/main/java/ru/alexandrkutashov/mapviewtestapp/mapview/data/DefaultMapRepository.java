@@ -62,18 +62,6 @@ public class DefaultMapRepository implements IMapRepository {
     }
 
     private void getFromDisk(Tile tile) {
-        Executor.getInstance().forBackgroundTasks().submit(() -> {
-            Bitmap result = mMapDiskManager.getFromDisk(tile);
-            if (result != null) {
-                mBitmapEmitter.emit(tile, result);
-                mMapMemoryManager.saveToMemory(tile, result);
-            } else {
-                downloadTile(tile);
-            }
-        });
-    }
-
-    private synchronized void downloadTile(Tile tile) {
         if (mLoading.get(tile) == null) {
             mLoading.put(tile, Executor.getInstance().forBackgroundTasks().submit(new TileDownloadRunnable() {
                 @Override
@@ -82,21 +70,34 @@ public class DefaultMapRepository implements IMapRepository {
                         mLoading.remove(tile);
                         return;
                     }
-                    final Bitmap result = mMapApiMapper.getTile(tile);
+
+                    Bitmap result = mMapDiskManager.getFromDisk(tile);
                     if (result == null) {
-                        mLoading.remove(tile);
                         downloadTile(tile);
-                        return;
+                    } else {
+                        mLoading.remove(tile);
+
+                        mMapMemoryManager.saveToMemory(tile, result);
+                        mBitmapEmitter.emit(tile, result);
                     }
-
-                    mLoading.remove(tile);
-
-                    mMapMemoryManager.saveToMemory(tile, result);
-                    mMapDiskManager.saveToDisk(tile, result);
-                    mBitmapEmitter.emit(tile, result);
                 }
             }));
         }
+    }
+
+    private void downloadTile(Tile tile) {
+        final Bitmap result = mMapApiMapper.getTile(tile);
+        if (result == null) {
+            mLoading.remove(tile);
+            getFromDisk(tile);
+            return;
+        }
+
+        mLoading.remove(tile);
+
+        mMapMemoryManager.saveToMemory(tile, result);
+        mMapDiskManager.saveToDisk(tile, result);
+        mBitmapEmitter.emit(tile, result);
     }
 
     /**

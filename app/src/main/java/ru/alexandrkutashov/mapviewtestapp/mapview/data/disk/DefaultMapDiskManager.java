@@ -92,7 +92,7 @@ public class DefaultMapDiskManager implements IMapDiskManager {
         }
     }
 
-    private void tryToDeleteOldFiles() {
+    private synchronized void tryToDeleteOldFiles() {
         ContextWrapper cw = new ContextWrapper(mContext.getApplicationContext());
         File directory = cw.getDir(TILE_DIRECTORY_NAME, Context.MODE_PRIVATE);
         File[] listFiles = directory.listFiles();
